@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import random
 import lib_atomicdex
 import lib_const
 import lib_rpc
@@ -35,3 +36,6 @@ for coin in lib_const.DPOW_COINS:
                     raw_tx, txoutproof = lib_tui.get_tx_import_info(coin, txid)
                     lib_const.option_print(lib_rpc.importprunedfunds(coin, raw_tx, txoutproof))
                 time.sleep(1)
+        if coin in ["RICK","MORTY"]:
+                mining = random.choice([1,0])
+                lib_rpc.setgenerate(coin, True, mining)

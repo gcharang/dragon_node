@@ -307,11 +307,11 @@ def wait_for_start(coin):
                 print(' '.join(get_launch_params(coin)))
                 i = 0
             print(f"Waiting for {coin} daemon to restart...")
-            time.sleep(30)
             block_height = getblockcount(coin)
             print(block_height)
             if block_height:
                 return block_height
+            time.sleep(30)
         except:
             pass
 
