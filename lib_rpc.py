@@ -317,19 +317,18 @@ def wait_for_start(coin):
 
 
 
+
+
 def get_ntx_stats(coin, wallet_tx):
     last_ntx_time = 0
     last_mined_time = 0
     ntx = []
-
+    ntx_addr = get_ntx_addr(coin)
     for tx in wallet_tx:
-        ntx_addr = get_ntx_addr(coin)
         if "address" in tx:
             if tx["address"] == ntx_addr:
-
                 if tx["time"] > last_ntx_time:
                     last_ntx_time = tx["time"]
-
                 if tx["category"] == "send":
                     ntx.append(tx)
 
