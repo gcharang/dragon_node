@@ -290,6 +290,7 @@ def wait_for_stop(coin):
             print(f"Waiting for {coin} daemon to stop...")
             time.sleep(10)
             block_height = getblockcount(coin)
+            stop(coin)
         except requests.exceptions.RequestException as e:
             break
     time.sleep(10)

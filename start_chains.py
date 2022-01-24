@@ -9,9 +9,7 @@ import time
 for coin in lib_const.DPOW_COINS:
     if coin not in lib_const.IGNORE_COINS:
         lib_rpc.start_chain(coin)
-
         block_height = lib_rpc.wait_for_start(coin)
-
         # get unspent, and if zero, import pk
         unspent = lib_rpc.get_unspent(coin)
         if len(unspent) == 0:
