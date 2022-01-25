@@ -312,9 +312,9 @@ def wait_for_start(coin):
             print(block_height)
             if block_height:
                 return block_height
-            time.sleep(30)
         except:
             pass
+        time.sleep(30)
 
 
 
