@@ -39,7 +39,7 @@ class DaemonRPC():
                         rpcport = int(l.replace('rpcport=', ''))
             if rpcport == 0:
                 if self.conf_path.endswith("komodo.conf"):
-                    rpcport = 7770
+                    rpcport = 7771
                 else:
                     self.msg.error(f"rpcport not in {self.conf_path}")
         return [rpcuser, rpcpassword, rpcport]
