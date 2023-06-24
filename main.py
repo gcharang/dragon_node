@@ -51,7 +51,7 @@ while True:
         
         elif options[q] == "stats":            
             try:
-                stats_loop(stats,600)
+                stats_loop(stats,600) # tode: q/quit not working as expected
             except KeyboardInterrupt:
                 break
         
