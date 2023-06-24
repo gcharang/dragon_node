@@ -131,7 +131,7 @@ class StatsLine:
 class Stats:
     def __init__(self, coins: list) -> None:
         self.coins = coins
-        self.coins.sort()
+        #self.coins.sort()
         self.msg = ColorMsg()
         self.col_widths = [11, 6, 8, 6, 10,
                            8, 8, 6, 8, 8, 10]
