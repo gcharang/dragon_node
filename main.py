@@ -5,7 +5,7 @@ import helper
 import const
 import tui
 from configure import Config
-from stats import Stats
+from stats import Stats,stats_loop
 from tui import TUI
 
 color_msg = ColorMsg()
@@ -52,9 +52,7 @@ while True:
         elif options[q] == "stats":
             while True:
                 try:
-                    stats.show()
-                    print("Ctrl+C to exit to main menu.")
-                    time.sleep(600)
+                    stats_loop(stats,600)
                 except KeyboardInterrupt:
                     break
         

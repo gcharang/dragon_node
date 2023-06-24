@@ -4,6 +4,9 @@ import os
 import const
 import helper
 import datetime
+import select
+import sys
+
 from daemon import DaemonRPC
 from logger import logger
 from color import ColorMsg
@@ -182,3 +185,38 @@ class Stats:
         date_str = f'| {mined_str}  | ' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' |'
         fmt_date_str = str(date_str).rjust(self.table_width + 9)
         print(fmt_date_str)
+
+def stats_loop(stats, timeout):
+    stats.show()
+    #print("Ctrl+C to exit to main menu.")
+
+    while True:
+        
+        # print the message before waiting for user input
+        print("Enter r/R for refreshing the stats (or enter 'q/quit' to exit): ")
+
+        # Check if there's input on stdin
+        i, o, e = select.select( [sys.stdin], [], [], timeout )
+        
+        # If there is input...
+        if (i):
+            # Read the input (this removes it from stdin)
+            user_input = sys.stdin.readline().strip()
+            print(f"User input: {user_input}")
+            # If the user types 'quit', break the loop
+            if user_input.lower() == 'quit' or user_input.lower() == 'q' :
+                break
+        
+            # Implement different commands
+            elif user_input.lower() == 'r':
+                stats_loop(stats)
+                
+            else:
+                print(f"Command '{user_input}' not recognized. Refreshing stats...")
+                stats_loop(stats)
+
+        # If the timeout has passed...
+        else:
+            print(f"Waited {timeout/10} minutes, refreshing stats...")
+            stats_loop(stats)   
+    return

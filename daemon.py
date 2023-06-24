@@ -6,7 +6,6 @@ import json
 import const
 import helper
 import requests
-from slickrpc import Proxy
 from requests.auth import HTTPBasicAuth
 from logger import logger
 from color import ColorMsg
