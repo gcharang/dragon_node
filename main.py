@@ -49,12 +49,11 @@ while True:
                 if coin != "KMD_3P":
                     print(f"{coin}: {helper.wif_convert(coin, wif)}")
         
-        elif options[q] == "stats":
-            while True:
-                try:
-                    stats_loop(stats,600)
-                except KeyboardInterrupt:
-                    break
+        elif options[q] == "stats":            
+            try:
+                stats_loop(stats,600)
+            except KeyboardInterrupt:
+                break
         
         elif options[q] == "import_privkey":
             tui.import_privkey()
