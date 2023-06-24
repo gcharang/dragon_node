@@ -209,14 +209,14 @@ def stats_loop(stats, timeout):
         
             # Implement different commands
             elif user_input.lower() == 'r':
-                stats_loop(stats)
+                stats_loop(stats, timeout)
                 
             else:
                 print(f"Command '{user_input}' not recognized. Refreshing stats...")
-                stats_loop(stats)
+                stats_loop(stats, timeout)
 
         # If the timeout has passed...
         else:
             print(f"Waited {timeout/10} minutes, refreshing stats...")
-            stats_loop(stats)   
+            stats_loop(stats, timeout)
     return
