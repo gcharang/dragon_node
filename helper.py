@@ -103,12 +103,14 @@ def private_key_to_public_key(private_key):
     private_key_bytes = codecs.decode(private_key[:-2], 'hex')
     # Generating a public key in bytes using SECP256k1 & ecdsa library
     public_key_raw = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1).verifying_key
-    public_key_bytes = public_key_raw.to_string()
-    # Hex encoding the public key from bytes
-    public_key_hex = codecs.encode(public_key_bytes, 'hex')
-    # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
-    public_key = (b'04' + public_key_hex).decode("utf-8")
-    return public_key
+    if public_key_raw is not None:
+        public_key_bytes = public_key_raw.to_string()
+        # Hex encoding the public key from bytes
+        public_key_hex = codecs.encode(public_key_bytes, 'hex')
+        # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
+        public_key = (b'04' + public_key_hex).decode("utf-8")
+        return public_key
+    return ""
 
 def compress_public_key(public_key):
 # Checking if the last byte is odd or even
@@ -137,12 +139,14 @@ def uncompressed_public_key_from_private_key(private_key, byte=b'04'):
     private_key_bytes = codecs.decode(private_key, 'hex')
     # Generating a public key in bytes using SECP256k1 & ecdsa library
     public_key_raw = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1).verifying_key
-    public_key_bytes = public_key_raw.to_string()
-    # Hex encoding the public key from bytes
-    public_key_hex = codecs.encode(public_key_bytes, 'hex')
-    # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
-    public_key = (byte + public_key_hex).decode("utf-8")
-    return public_key
+    if public_key_raw is not None:
+        public_key_bytes = public_key_raw.to_string()
+        # Hex encoding the public key from bytes
+        public_key_hex = codecs.encode(public_key_bytes, 'hex')
+        # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
+        public_key = (byte + public_key_hex).decode("utf-8")
+        return public_key
+    return ""
 
 def WIF_uncompressed(byte, raw_privkey):
     extended_key = byte+raw_privkey
@@ -214,7 +218,7 @@ def get_wallet_path(coin: str) -> str:
             return f"{conf_path}/wallet.dat"
     return ""
 
-def get_utxos(coin: str, pubkey: str) -> list:
+def get_utxos_from_api(coin: str, pubkey: str) -> list:
     address = based_58.get_addr_from_pubkey(pubkey, coin)
     if coin in const.INSIGHT_EXPLORERS:
         baseurl = const.INSIGHT_EXPLORERS[coin]
@@ -293,7 +297,11 @@ def read_json_data(filename: str) -> dict:
 def sec_since(ts):
     return int(time.time()) - ts
 
-def sec_to_dhms(sec: int, colorize: bool=True, optimal_max: int=7200, lower_threshold: int=21600, upper_threshold: int=86400) -> str:
+def sec_to_dhms(sec: int, colorize: bool=True,
+                optimal_max: int=7200, lower_threshold: int=21600,
+                upper_threshold: int=86400, prefix: str="",
+                padding: bool=True, color: bool=True, 
+            ) -> str:
     if sec < 0:
         sec = sec*-1
     minutes, seconds = divmod(sec, 60)
@@ -314,18 +322,16 @@ def sec_to_dhms(sec: int, colorize: bool=True, optimal_max: int=7200, lower_thre
     if sec < 0:
         result = f"-{result}"
     # Add color and fix padding
-    if sec < optimal_max:
+    if padding:
         while len(result) < 8:
             result = f" {result}"
-        result = '\033[92m' + result + '\033[0m'
-    if sec > upper_threshold:
-        while len(result) < 8:
-            result = f" {result}"
-        result = '\033[31m' + result + '\033[0m'
-    if sec > lower_threshold:
-        while len(result) < 8:
-            result = f" {result}"
-        result = '\033[33m' + result + '\033[0m'
+    if color:
+        if sec < optimal_max:
+            result = '\033[92m' + result + '\033[0m'
+        if sec > upper_threshold:
+            result = '\033[31m' + result + '\033[0m'
+        if sec > lower_threshold:
+            result = '\033[33m' + result + '\033[0m'
     return result
 
 
@@ -366,19 +372,45 @@ def get_tx_fee(coin):
     coins_config = get_coins_config()
     if coin in coins_config:
         if "txfee" in coins_config[coin]:
-            return coins_config[coin]["txfee"]
+            if coins_config[coin]["txfee"] > 0:
+                return coins_config[coin]["txfee"] / 100000000
     if coin in const.LARGE_UTXO_COINS:
         return 0.00010000
     else:
         return 0.00001000
 
-def get_coins_config():
-    if not os.path.exists(const.COINS_CONFIG_PATH):
-        data = requests.get(const.COINS_CONFIG_URL).json()
-        with open(const.COINS_CONFIG_PATH, "w") as f:
-            json.dump(data, f, indent=4)    
-    with open(const.COINS_CONFIG_PATH, "r") as f:
+
+def refresh_external_data(file, url):
+    if not os.path.exists(file):
+        data = requests.get(url).json()
+        with open(file, "w") as f:
+            json.dump(data, f, indent=4)
+    now = int(time.time())
+    mtime = os.path.getmtime(file)
+    if now - mtime > 21600: # 6 hours
+        data = requests.get(url).json()
+        with open(file, "w") as f:
+            json.dump(data, f, indent=4)
+    with open(file, "r") as f:
         return json.load(f)
+
+
+def get_coins_config():
+    return refresh_external_data(const.COINS_CONFIG_PATH, const.COINS_CONFIG_URL)
+
+
+def get_seednode_versions():
+    return refresh_external_data(const.SEEDNODE_VERSIONS_PATH, const.SEEDNODE_VERSIONS_URL)
+
+
+def get_active_seednode_versions():
+    now = int(time.time())
+    active_versions = []
+    versions = get_seednode_versions()
+    for v in versions:
+        if versions[v]["end"] > now:
+            active_versions.append(v)
+    return active_versions
 
 def get_dpow_pubkey(server: str) -> str:
     if server == "main":
@@ -402,6 +434,28 @@ def get_dpow_pubkey(server: str) -> str:
 def get_assetchains():
     with open(f"{const.HOME}/dPoW/iguana/assetchains.json") as file:
         return json.load(file)
+
+def input_int(q, min=0, max=1000000000):
+    while True:
+        try:
+            msg = ColorMsg()
+            val = msg.input(q)
+            if int(val) in range(min, max):
+                return int(val)
+            else:
+                print(f"Invalid input, must be between {min} - {max}. Try again")
+        except ValueError:
+            print("Invalid input, must be integer. Try again")
+
+def input_coin(q):
+    while True:
+        msg = ColorMsg()
+        valid = const.DPOW_COINS + ["ALL"]
+        coin = msg.input(q)
+        if coin.upper() in valid:
+            return coin
+        else:
+            print(f"Invalid coin, must be one of {valid}. Try again")
 
 
 def chunkify(data: list, chunk_size: int):

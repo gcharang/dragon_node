@@ -40,32 +40,23 @@ class Notary():
             name = name[0].upper() + name[1:]
         return name
 
-    def get_coins_ntx_data(self, refresh=False) -> dict:
-        if os.path.exists(const.COINS_NTX_DATA_PATH) and not refresh:
-            with open(const.COINS_NTX_DATA_PATH) as file:
-                return json.load(file)
-        else:
-            data = self.get_coins_data()
-            with open(const.COINS_NTX_DATA_PATH, "w") as file:
-                json.dump(data, file, indent=4)
-            return data
         
     def get_utxo_threshold(self, coin: str) -> int:
-        coins_ntx_data = self.get_coins_ntx_data(True)
+        coins_ntx_data = self.cfg.get_coins_ntx_data()
         if coin in coins_ntx_data:
-            return coins_ntx_data[coin]["min_utxo_count"]
+            return coins_ntx_data[coin]["split_threshold"]
         else:
-            return coins_ntx_data["KMD"]["min_utxo_count"]
+            return coins_ntx_data["KMD"]["split_threshold"]
     
     def get_split_amount(self, coin: str) -> int:
-        coins_ntx_data = self.get_coins_ntx_data(True)
+        coins_ntx_data = self.cfg.get_coins_ntx_data()
         if coin in coins_ntx_data:
-            return coins_ntx_data[coin]["split_count"]
+            return coins_ntx_data[coin]["split_amount"]
         else:
-            return coins_ntx_data["KMD"]["split_count"]
+            return coins_ntx_data["KMD"]["split_amount"]
         
     def get_utxo_value(self, coin: str, sats=False) -> float:
-        coins_ntx_data = self.get_coins_ntx_data()
+        coins_ntx_data = self.cfg.get_coins_ntx_data()
         if sats:
             factor = 100000000
         else:
@@ -75,33 +66,12 @@ class Notary():
         else:
             return coins_ntx_data["KMD"]["utxo_value"] * factor
 
-    def get_coins_data(self) -> dict:
-        coins_data = {}
-        config = self.cfg.load()
-        if helper.is_configured(config):
-            for server in const.CONF_PATHS:
-                for coin in const.CONF_PATHS[server]:
-                    coins_data.update({
-                        coin: {
-                            "conf": const.CONF_PATHS[server][coin],
-                            "wallet": helper.get_wallet_path(coin),
-                            "utxo_value": helper.get_utxo_value(coin),
-                            "utxo_value_sats": helper.get_utxo_value(coin, True),
-                            "min_utxo_count": 20,
-                            "split_count": 20,
-                            "server": server,
-                            "address": config["addresses"][coin],
-                            "txfee": helper.get_tx_fee(coin),
-                            "pubkey": config[f"pubkey_{server}"]
-                        }
-                    })
-        return coins_data
     
     def move_wallet(self, coin: str) -> None:
         config = self.cfg.load()
         if helper.is_configured(config):
             try:
-                coins_data = self.get_coins_ntx_data()
+                coins_data = self.cfg.get_coins_ntx_data()
                 now = int(time.time())
                 wallet = coins_data[coin]["wallet"]
                 wallet_bk = wallet.replace("wallet.dat", f"wallet_{now}.dat")
@@ -112,7 +82,7 @@ class Notary():
     def rm_komodoevents(self, coin) -> None:
         config = self.cfg.load()
         if helper.is_configured(config):
-            coins_data = self.get_coins_ntx_data()
+            coins_data = self.cfg.get_coins_ntx_data()
             data_dir = os.path.split(coins_data[coin]["wallet"])
             for filename in ["komodoevents", "komodoevents.ind"]:
                 try:
@@ -153,23 +123,25 @@ class Notary():
         # TODO: This relies on access to explorer APIs, which may not be available for all coins
         # AYA block explorer API has no usable endpoints
         # TODO: Electrums may be a viable alternative
-        self.consolidate(coin, True, True)
+        self.consolidate(coin, True)
 
     def get_vouts(self, coin: str, address: str, value: float, tx_size: int) -> dict:
         fee = 0
         if coin in ["LTC"]:
             fee = tx_size * 0.00000002
         elif coin in ["EMC", "CHIPS", "AYA"]:
-            fee = helper.get_tx_fee(coin) / 100000000
-            if fee == 0:
-                fee = 0.0001
+            if coin in const.LARGE_UTXO_COINS:
+                fee = 0.00010000
+            else:
+                fee = 0.00001000
         self.msg.darkgrey(f"{coin} fee: {fee}")
         return {address: value - fee}
 
-    def get_utxos(self, coin: str, pubkey: str) -> list:
+    def get_utxos(self, coin: str, pubkey: str, api=True) -> list:
         daemon = DaemonRPC(coin)
-        utxos_data = helper.get_utxos(coin, pubkey)
-        if len(utxos_data) == 0:
+        if api:
+            utxos_data = helper.get_utxos_from_api(coin, pubkey)
+        else:
             try:
                 utxos_data = daemon.listunspent()
             except Exception as e:
@@ -187,7 +159,7 @@ class Notary():
                     i["amount"] = i["value"] / 100000000
                 else:
                     logger.error(f"{coin} UTXO data: {i}")
-            
+
         utxos_data = [i for i in utxos_data if "amount" in i]
         utxos = sorted(utxos_data, key=lambda d: d['amount'], reverse=True)
         return utxos
@@ -216,9 +188,6 @@ class Notary():
         if count < self.get_utxo_threshold(coin) or force:
             server = helper.get_coin_server(coin)
             split_amount = self.get_split_amount(coin)
-            # Double the reserve for KMD as it is more active
-            if coin in ["KMD", "KMD_3P"]:
-                split_amount *= 2
                 
             sats = int(helper.get_utxo_value(coin, True))
             iguana = Iguana(server)
@@ -247,22 +216,21 @@ class Notary():
             self.msg.darkgrey(f"Skipping {coin} ({count} utxos in reserve)")
             return True
                 
-    def consolidate(self, coin: str, reset=False, force: bool=False, address: str="") -> None:
+    def consolidate(self, coin: str, force: bool=False, api: bool=False) -> None:
         config = self.cfg.load()
         if helper.is_configured(config):
             print()
-            coins_data = self.get_coins_ntx_data(True)
-            if address == "":
-                address = coins_data[coin]["address"]
-            pubkey = coins_data[coin]["pubkey"]
             daemon = DaemonRPC(coin)
-            utxos = self.get_utxos(coin, pubkey)
+            coins_data = self.cfg.get_coins_ntx_data()
+            address = coins_data[coin]["address"]
+            pubkey = coins_data[coin]["pubkey"]
+            utxos = self.get_utxos(coin, pubkey, api)
             if len(utxos) == 0:
                 logger.warning(f"{coin} No UTXOs found")
                 return
-            if not reset:
-                if len(utxos) < 20 and daemon.getbalance() > 0.001 and not force:
-                    logger.debug(f"{coin} < 20 UTXOs to consolidate, skipping")
+            if not force:
+                if len(utxos) < 5 and daemon.getbalance() > 0.001 and not force:
+                    logger.debug(f"{coin} < 5 UTXOs to consolidate, skipping")
                     return
 
             utxo_chunks = helper.chunkify(utxos, 800)
@@ -348,17 +316,17 @@ class Notary():
         logger.error(f"{coin} vouts {vouts}")
         return ""
                     
-    def sweep_kmd(self, coin: str) -> None:
+    def sweep_kmd(self) -> None:
         config = self.cfg.load()
         if helper.is_configured(config):
-            daemon = DaemonRPC(coin)
+            daemon = DaemonRPC("KMD")
             unspent = daemon.listunspent()
             self.msg.info(f"{len(unspent)} unspent utxos detected")
             balance = 0
             for utxo in unspent:
                 if utxo["amount"] != 0.00010000 and utxo["spendable"]:
                     balance += utxo["amount"]
-            if balance > 100:
+            if balance > 500:
                 self.msg.info(f"{balance} KMD in non-split UTXOs")
                 self.msg.info(daemon.sendtoaddress(config["sweep_address"], round(balance-5, 4)))
             else:
@@ -383,7 +351,7 @@ class Notary():
     def start_container(self, coin):
         config = self.cfg.load()
         if helper.is_configured(config):
-            coins_data = self.get_coins_ntx_data(True)
+            coins_data = self.cfg.get_coins_ntx_data()
             server = coins_data[coin]["server"]
             if server == "main":
                 compose = const.COMPOSE_PATH_MAIN
@@ -397,7 +365,7 @@ class Notary():
     def stop_container(self, coin):
         config = self.cfg.load()
         if helper.is_configured(config):
-            coins_data = self.get_coins_ntx_data()
+            coins_data = self.cfg.get_coins_ntx_data()
             server = coins_data[coin]["server"]
             if server == "main":
                 compose = const.COMPOSE_PATH_MAIN
