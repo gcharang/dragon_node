@@ -31,7 +31,7 @@ COINS_CONFIG_PATH = f"{SCRIPT_PATH}/coins_config.json"
 COMMIT_HASHES_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/master/README.md"
 COMMIT_HASHES_PATH = f"{SCRIPT_PATH}/commit_hashes.json"
 
-SEEDNODE_VERSIONS_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/seednode-update/doc/seed_version_epochs.json"
+SEEDNODE_VERSIONS_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/dev/doc/seed_version_epochs.json"
 SEEDNODE_VERSIONS_PATH = f"{SCRIPT_PATH}/seed_versions.json"
 
 # Coins constants
@@ -143,6 +143,7 @@ INSIGHT_EXPLORERS = {
     'TOKEL': 'https://tokel.explorer.dexstats.info/',
     'VRSC': 'https://vrsc.explorer.dexstats.info/'
 }
+
 CRYPTOID_API_KEY = os.getenv('CRYPTOID_API_KEY')
 CRYPTOID_EXPLORERS = {
     'EMC2': 'https://chainz.cryptoid.info/emc2/',
@@ -166,8 +167,7 @@ OLD_CONFIG_KEYS = [
 # https://api.blockcypher.com/v1/ltc/main/addrs/LS814iSp85xv7N4dGnwAyas92u9AMVr9KV?unspentOnly=true
 
 # MM2 constants
-MM2_JSON_PATH = f"{HOME}/notary_docker_3p/mm2/MM2.json"
-
+MM2_JSON_PATH = os.getenv("MM2_JSON_PATH") or f"{HOME}/notary_docker_3p/mm2/MM2.json"
 
 config = get_cache_data(APP_CONFIG_PATH)
 for i in ["whitelist", "addnode", "addnotary"]:
