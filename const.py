@@ -11,8 +11,12 @@ def get_cache_data(file):
     if not os.path.exists(file):
         print(f"Failed to get {file} from cache")
         return {}
-    with open(file, "r") as f:
-        return json.load(f)
+    try:
+        with open(file, "r") as f:
+            return json.load(f)
+    except:
+        print(f"{file} from cache is broken!")
+        return {}
 
 # Path constants
 HOME = expanduser('~')
@@ -35,7 +39,7 @@ SEEDNODE_VERSIONS_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/d
 SEEDNODE_VERSIONS_PATH = f"{SCRIPT_PATH}/seed_versions.json"
 
 # Coins constants
-COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "THC", "KMD", "NINJA"]
+COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "KMD", "NINJA", "THC", "KIP0002", "KIP0003", "KIP0004"]
 CONF_PATHS = {
     "main": {
         "KMD": f"{HOME}/.komodo/komodo.conf",
@@ -130,6 +134,7 @@ INSIGHT_EXPLORERS = {
     'CLC': 'https://clc.explorer.dexstats.info/',
     'DOC': 'https://doc.dragonhound.info/',
     'GLEEC': 'https://gleec.explorer.dexstats.info/',
+    'THC': 'https://thc.explorer.dexstats.info/',
     'ILN': 'https://iln.explorer.dexstats.info/',
     'KMD': 'https://kmd.explorer.dexstats.info/',
     'KMD_3P': 'https://kmd.explorer.dexstats.info/',
@@ -139,8 +144,10 @@ INSIGHT_EXPLORERS = {
     'NINJA': 'https://ninja.explorer.dexstats.info/',
     'PIRATE': 'https://explorer.pirate.black/',
     'SUPERNET': 'https://supernet.explorer.dexstats.info/',
-    'THC': 'https://thc.explorer.dexstats.info/',
     'TOKEL': 'https://tokel.explorer.dexstats.info/',
+    'KIP0002': 'https://kip0002.kmdexplorer.io/',
+    'KIP0003': 'https://kip0003.kmdexplorer.io/',
+    'KIP0004': 'https://kip0004.kmdexplorer.io/',
     'VRSC': 'https://vrsc.explorer.dexstats.info/'
 }
 
