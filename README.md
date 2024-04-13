@@ -93,6 +93,10 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
         "GLEEC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KOIN": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KMD": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "THC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0002": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0003": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0004": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "NINJA": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE"
     }
 }
