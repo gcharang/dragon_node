@@ -11,8 +11,12 @@ def get_cache_data(file):
     if not os.path.exists(file):
         print(f"Failed to get {file} from cache")
         return {}
-    with open(file, "r") as f:
-        return json.load(f)
+    try:
+        with open(file, "r") as f:
+            return json.load(f)
+    except:
+        print(f"{file} from cache is broken!")
+        return {}
 
 # Path constants
 HOME = expanduser('~')
