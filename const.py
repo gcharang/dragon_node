@@ -47,7 +47,6 @@ CONF_PATHS = {
     },
     "3p": {
         "KMD_3P": f"{HOME}/.komodo_3p/komodo.conf",
-        "VRSC": f"{HOME}/.komodo_3p/VRSC/VRSC.conf",
         "TOKEL": f"{HOME}/.komodo_3p/TOKEL/TOKEL.conf",
         "MCL": f"{HOME}/.komodo_3p/MCL/MCL.conf",
         "AYA": f"{HOME}/.aryacoin/aryacoin.conf",
@@ -62,7 +61,7 @@ CONF_PATHS = {
 DPOW_SERVERS = list(CONF_PATHS.keys())
 COINS_3P = list(CONF_PATHS["3p"].keys())
 DPOW_COINS = COINS_3P + COINS_MAIN
-IMPORT_PRUNED_COINS = ["AYA", "EMC2", "MIL", "CHIPS", "VRSC", "LTC"]
+IMPORT_PRUNED_COINS = ["AYA", "EMC2", "MIL", "CHIPS", "LTC"]
                       
 LARGE_UTXO_COINS = ["EMC2", "AYA", "MIL"]
 
@@ -147,8 +146,7 @@ INSIGHT_EXPLORERS = {
     'TOKEL': 'https://tokel.explorer.dexstats.info/',
     'KIP0002': 'https://kip0002.kmdexplorer.io/',
     'KIP0003': 'https://kip0003.kmdexplorer.io/',
-    'KIP0004': 'https://kip0004.kmdexplorer.io/',
-    'VRSC': 'https://vrsc.explorer.dexstats.info/'
+    'KIP0004': 'https://kip0004.kmdexplorer.io/'
 }
 
 CRYPTOID_API_KEY = os.getenv('CRYPTOID_API_KEY')
@@ -162,7 +160,7 @@ BLOCKCYPHER_EXPLORERS = {
 NO_EXPLORER = {
     'AYA': ''
 }
-WHITELIST_COMPATIBLE = list(set(COINS_MAIN) - set(["LTC"])) + ["KMD_3P", "MCL", "TOKEL", "VRSC", "CHIPS"]
+WHITELIST_COMPATIBLE = list(set(COINS_MAIN) - set(["LTC"])) + ["KMD_3P", "MCL", "TOKEL", "CHIPS"]
 
 OLD_CONFIG_KEYS = [
     "address_main_kmd", "config_path", "address_main",

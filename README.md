@@ -75,7 +75,6 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
     },
     "addresses": {
         "KMD_3P": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
-        "VRSC": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "TOKEL": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "MCL": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "AYA": "AJsf8kG5ZiiSdyHWpCqGj3QXwf2CdsPmDu",
