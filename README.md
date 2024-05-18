@@ -96,6 +96,7 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
         "KIP0002": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KIP0003": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KIP0004": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "VOTE2024": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "NINJA": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE"
     }
 }
