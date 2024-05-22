@@ -75,7 +75,6 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
     },
     "addresses": {
         "KMD_3P": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
-        "VRSC": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "TOKEL": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "MCL": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "AYA": "AJsf8kG5ZiiSdyHWpCqGj3QXwf2CdsPmDu",
@@ -92,8 +91,12 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
         "LTC": "Lga1bKF6FSHx9RqbC4gE1iS4PFncyaQ7W9",
         "GLEEC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KOIN": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
-        "THC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KMD": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "THC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0002": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0003": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "KIP0004": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
+        "VOTE2024": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "NINJA": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE"
     }
 }
