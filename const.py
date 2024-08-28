@@ -49,7 +49,7 @@ CONF_PATHS = {
         "KMD_3P": f"{HOME}/.komodo_3p/komodo.conf",
         "TOKEL": f"{HOME}/.komodo_3p/TOKEL/TOKEL.conf",
         "MCL": f"{HOME}/.komodo_3p/MCL/MCL.conf",
-        "GLEEC": f"{HOME}/.komodo/GLEEC_OLD/GLEEC.conf",
+        "GLEEC_OLD": f"{HOME}/.komodo/GLEEC_OLD/GLEEC.conf",
         "AYA": f"{HOME}/.aryacoin/aryacoin.conf",
         "EMC2": f"{HOME}/.einsteinium/einsteinium.conf",
         "MIL": f"{HOME}/.mil/mil.conf",
