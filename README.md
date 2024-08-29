@@ -90,7 +90,6 @@ User config can be edited via the TUI, or by manually editing the `config.json` 
         "MARTY": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "LTC": "Lga1bKF6FSHx9RqbC4gE1iS4PFncyaQ7W9",
         "GLEEC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
-        "GLEEC_OLD": "RCNyZmHjqPrru1SiijA4fgUeEKZ6u2JVvD",
         "KOIN": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "KMD": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
         "THC": "RWdFQcpYmbrTxdWdV6g3qDhVwJswVQCGWE",
