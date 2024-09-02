@@ -39,7 +39,7 @@ SEEDNODE_VERSIONS_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/d
 SEEDNODE_VERSIONS_PATH = f"{SCRIPT_PATH}/seed_versions.json"
 
 # Coins constants
-COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "KMD", "NINJA", "THC", "VOTE2024"]
+COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "KMD", "NINJA", "THC"]
 CONF_PATHS = {
     "main": {
         "KMD": f"{HOME}/.komodo/komodo.conf",
@@ -49,6 +49,7 @@ CONF_PATHS = {
         "KMD_3P": f"{HOME}/.komodo_3p/komodo.conf",
         "TOKEL": f"{HOME}/.komodo_3p/TOKEL/TOKEL.conf",
         "MCL": f"{HOME}/.komodo_3p/MCL/MCL.conf",
+        "GLEEC_OLD": f"{HOME}/.komodo/GLEEC_OLD/GLEEC.conf",
         "AYA": f"{HOME}/.aryacoin/aryacoin.conf",
         "EMC2": f"{HOME}/.einsteinium/einsteinium.conf",
         "MIL": f"{HOME}/.mil/mil.conf",
@@ -127,12 +128,14 @@ ADDNODES = {
     "webworker": "seed.webworker.sh",
 }
 
+# TODO: Gleec old/new explorers?
 INSIGHT_EXPLORERS = {
     'CCL': 'https://ccl.explorer.dexstats.info/',
     'CHIPS': 'https://chips.explorer.dexstats.info/',
     'CLC': 'https://clc.explorer.dexstats.info/',
     'DOC': 'https://doc.dragonhound.info/',
     'GLEEC': 'https://gleec.explorer.dexstats.info/',
+    'GLEECOLD': 'https://gleec.explorer.dexstats.info/',
     'THC': 'https://thc.explorer.dexstats.info/',
     'ILN': 'https://iln.explorer.dexstats.info/',
     'KMD': 'https://kmd.explorer.dexstats.info/',
@@ -143,11 +146,7 @@ INSIGHT_EXPLORERS = {
     'NINJA': 'https://ninja.explorer.dexstats.info/',
     'PIRATE': 'https://explorer.pirate.black/',
     'SUPERNET': 'https://supernet.explorer.dexstats.info/',
-    'TOKEL': 'https://tokel.explorer.dexstats.info/',
-    'KIP0002': 'https://kip0002.kmdexplorer.io/',
-    'KIP0003': 'https://kip0003.kmdexplorer.io/',
-    'KIP0004': 'https://kip0004.kmdexplorer.io/',
-    'VOTE2024': 'https://vote2024.explorer.lordofthechains.com/'
+    'TOKEL': 'https://tokel.explorer.dexstats.info/'
 }
 
 CRYPTOID_API_KEY = os.getenv('CRYPTOID_API_KEY')
