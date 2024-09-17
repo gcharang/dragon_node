@@ -115,14 +115,15 @@ class NotaryMenu():
 
     def drip(self):
         balances = self.faucet.balances()
-        coin = self.msg.input("Enter coin to drip: ")
         while True:
+            coin = self.msg.input("Enter coin to drip: ")
             if coin.upper() in const.DPOW_COINS:
                 pubkey = self.cfg.load()[f"pubkey_{helper.get_coin_server(coin)}"]
                 self.msg.status(self.faucet.drip(coin, pubkey))
-                break
             else:
                 self.msg.error(f"Invalid coin '{coin}', try again.")
+            if helper.input_yn("Drip another coin? (y/n): ") is False:
+                break
 
     def start_coin(self):
         while True:
