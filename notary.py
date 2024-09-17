@@ -412,10 +412,14 @@ class Notary():
                     if i == 30:
                         # TODO: Send an alert if this happens
                         logger.warning(f"Looks like there might be an issue with stopping {coin}...")
+                        break
                     resp = daemon.is_responding()
                     if resp["result"] is None:
                         logger.debug(f"Waiting for {coin} daemon to stop...{resp}")
                         time.sleep(10)
+                    else:
+                        logger.debug(resp)
+                        break
                 except Exception as e:
                     logger.error(e)
         else:
@@ -430,12 +434,16 @@ class Notary():
             while True:
                 try:
                     i += 1
-                    if i == 180:
+                    if i == 120:
                         # TODO: Send an alert if this happens
                         self.msg.warning(f"Looks like there might be an issue with loading {coin}...")
+                        break
                     resp = daemon.is_responding()
                     if resp["result"] is None:
                         logger.debug(f"Waiting for {coin} daemon to start...{resp}")
+                    else:
+                        logger.debug(resp)
+                        break
                 except ConnectionResetError as e:
                     logger.debug(f"Waiting for {coin} daemon to start...{e}")
                 except Exception as e:
