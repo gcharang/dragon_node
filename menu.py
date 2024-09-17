@@ -111,7 +111,7 @@ class NotaryMenu():
         ]
 
     def show(self):
-        show_menu(self.menu, "Wallet Menu")
+        show_menu(self.menu, "Notary Menu")
 
     def drip(self):
         balances = self.faucet.balances()
