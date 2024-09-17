@@ -351,16 +351,12 @@ class Notary():
             if balance > 10:
                 self.msg.info(f"{balance} KMD in non-split UTXOs")
                 amount = round(balance-5, 4)
-                q = input(f"Sending {amount} KMD to sweep address [{config['sweep_address']}]? (y/n): ")
+                q = input(f"Send {amount} KMD to sweep address [{config['sweep_address']}]? (y/n): ")
                 if q.lower() == "y":
                     self.msg.info(daemon.sendtoaddress(config["sweep_address"], amount))
                 else:
                     addr = input(f"Enter address to send {amount} KMD: ")
-                    if q.lower() == "y":
-                        self.msg.info(daemon.sendtoaddress(addr, amount))
-                    else:
-                        self.msg.info("Sweep cancelled")
-                    self.msg.info("Sweep cancelled")
+                    self.msg.info(daemon.sendtoaddress(addr, amount))
             else:
                 self.msg.info(f"Only {balance} KMD in non-split UTXOs, skipping sweep.")
             
