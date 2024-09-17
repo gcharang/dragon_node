@@ -504,9 +504,9 @@ def input_yn(q):
     while True:
         msg = ColorMsg()
         r = msg.input(q)
-        if q.lower() == "y":
+        if r.lower() == "y":
             return True
-        elif q.lower() == "n":
+        elif r.lower() == "n":
             return False
         print(f"Invalid option, must be one of [y/n]. Try again")
 
