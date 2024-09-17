@@ -237,13 +237,14 @@ class Notary():
             self.msg.darkgrey(f"Skipping {coin} ({count} utxos in reserve)")
             return True
                 
-    def consolidate(self, coin: str, force: bool=False, api: bool=False) -> None:
+    def consolidate(self, coin: str, force: bool=False, api: bool=False, address: str="") -> None:
         config = self.cfg.load()
         if helper.is_configured(config):
             print()
             daemon = DaemonRPC(coin)
             coins_data = self.cfg.get_coins_ntx_data()
-            address = coins_data[coin]["address"]
+            if address == "":
+                address = coins_data[coin]["address"]
             pubkey = coins_data[coin]["pubkey"]
             utxos = self.get_utxos(coin, pubkey, api)
             if len(utxos) == 0:
@@ -347,12 +348,18 @@ class Notary():
             for utxo in unspent:
                 if utxo["amount"] != 0.00010000 and utxo["spendable"]:
                     balance += utxo["amount"]
-            if balance > 500:
+            if balance > 10:
                 self.msg.info(f"{balance} KMD in non-split UTXOs")
-                q = input(f"Confirm sending {round(balance-5, 4)} KMD to {config['sweep_address']}? (y/n): ")
+                amount = round(balance-5, 4)
+                q = input(f"Sending {amount} KMD to sweep address [{config['sweep_address']}]? (y/n): ")
                 if q.lower() == "y":
-                    self.msg.info(daemon.sendtoaddress(config["sweep_address"], round(balance-5, 4)))
+                    self.msg.info(daemon.sendtoaddress(config["sweep_address"], amount))
                 else:
+                    addr = input(f"Enter address to send {amount} KMD: ")
+                    if q.lower() == "y":
+                        self.msg.info(daemon.sendtoaddress(addr, amount))
+                    else:
+                        self.msg.info("Sweep cancelled")
                     self.msg.info("Sweep cancelled")
             else:
                 self.msg.info(f"Only {balance} KMD in non-split UTXOs, skipping sweep.")

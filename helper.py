@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 import os
 import sys
@@ -24,8 +23,10 @@ from logger import logger
 
 
 def validate_pubkey(pubkey: str) -> bool:
-    # TODO: this is weak validation, improve it
     if len(pubkey) != 66:
+        return False
+    address = based_58.get_addr_from_pubkey(pubkey, "KMD")
+    if not address:
         return False
     return True
 
@@ -34,6 +35,7 @@ def get_base58_params():
     url = "https://stats.kmd.io/api/info/base_58/"
     return requests.get(url).json()["results"]
 
+
 def generate_rpc_pass(length):
     special_chars = "@~-_|():+"
     rpc_chars = string.ascii_letters + string.digits + special_chars
@@ -41,20 +43,20 @@ def generate_rpc_pass(length):
 
 
 def bytes_to_unit(filesize):
-    unit = 'B'
+    unit = "B"
     if filesize > 1024:
-        unit = 'K'
-    if filesize > 1024 ** 2:
-        unit = 'M'
-    if filesize > 1024 ** 3:
-        unit = 'G'
-    exponents_map = {'B': 0, 'K': 1, 'M': 2, 'G': 3}
+        unit = "K"
+    if filesize > 1024**2:
+        unit = "M"
+    if filesize > 1024**3:
+        unit = "G"
+    exponents_map = {"B": 0, "K": 1, "M": 2, "G": 3}
     size = filesize / 1024 ** exponents_map[unit]
     return f"{round(size, 2)}{unit}"
 
 
 def convert_bytes(num):
-    for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+    for x in ["bytes", "KB", "MB", "GB", "TB"]:
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
@@ -63,7 +65,8 @@ def convert_bytes(num):
 def hash160(hexstr):
     preshabin = binascii.unhexlify(hexstr)
     my160 = hashlib.sha256(preshabin).hexdigest()
-    return(hashlib.new('ripemd160', binascii.unhexlify(my160)).hexdigest())
+    return hashlib.new("ripemd160", binascii.unhexlify(my160)).hexdigest()
+
 
 def addr_from_ripemd(prefix, ripemd):
     net_byte = prefix + ripemd
@@ -73,7 +76,8 @@ def addr_from_ripemd(prefix, ripemd):
     sha256b = hashlib.sha256(binb).hexdigest()
     hmmmm = binascii.unhexlify(net_byte + sha256b[:8])
     final = base58.b58encode(hmmmm)
-    return(final.decode())
+    return final.decode()
+
 
 def get_wiftype(coin):
     params = get_base58_params()
@@ -85,42 +89,49 @@ def get_wiftype(coin):
     else:
         return params[coin]["wiftype"]
 
+
 def validate_wif(pubkey, wif):
     compressed_public_key = helper.wif_to_pubkey(wif)
     if pubkey == compressed_public_key:
         return True
     return False
 
+
 def wif_decode(compressed_wif):
-    b58decode = base58.b58decode(compressed_wif) 
-    full_privkey = binascii.hexlify(b58decode) 
+    b58decode = base58.b58decode(compressed_wif)
+    full_privkey = binascii.hexlify(b58decode)
     raw_privkey = full_privkey[2:-8]
     private_key = raw_privkey.decode("utf-8")
     return private_key
 
+
 def private_key_to_public_key(private_key):
     # Hex decoding the private key to bytes using codecs library
-    private_key_bytes = codecs.decode(private_key[:-2], 'hex')
+    private_key_bytes = codecs.decode(private_key[:-2], "hex")
     # Generating a public key in bytes using SECP256k1 & ecdsa library
-    public_key_raw = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1).verifying_key
+    public_key_raw = ecdsa.SigningKey.from_string(
+        private_key_bytes, curve=ecdsa.SECP256k1
+    ).verifying_key
     if public_key_raw is not None:
         public_key_bytes = public_key_raw.to_string()
         # Hex encoding the public key from bytes
-        public_key_hex = codecs.encode(public_key_bytes, 'hex')
+        public_key_hex = codecs.encode(public_key_bytes, "hex")
         # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
-        public_key = (b'04' + public_key_hex).decode("utf-8")
+        public_key = (b"04" + public_key_hex).decode("utf-8")
         return public_key
     return ""
 
+
 def compress_public_key(public_key):
-# Checking if the last byte is odd or even
-    if (ord(bytearray.fromhex(public_key[-2:])) % 2 == 0):
-        prefix = '02'
+    # Checking if the last byte is odd or even
+    if ord(bytearray.fromhex(public_key[-2:])) % 2 == 0:
+        prefix = "02"
     else:
-        prefix = '03'
+        prefix = "03"
     # Add bytes 0x02 to the X of the key if even or 0x03 if odd
     compressed_public_key = prefix + public_key[2:66]
     return compressed_public_key
+
 
 def wif_convert(coin, wif):
     raw_privkey = wif_decode(wif)
@@ -128,51 +139,58 @@ def wif_convert(coin, wif):
     wiftype_hex = int_to_hexstr(wiftype)
     return WIF_compressed(wiftype_hex, raw_privkey)
 
+
 def wif_to_pubkey(wif):
     private_key = wif_decode(wif)
     public_key = private_key_to_public_key(private_key)
     compressed_public_key = compress_public_key(public_key)
-    return compressed_public_key # AKA pubkey
+    return compressed_public_key  # AKA pubkey
 
-def uncompressed_public_key_from_private_key(private_key, byte=b'04'):
+
+def uncompressed_public_key_from_private_key(private_key, byte=b"04"):
     # Hex decoding the private key to bytes using codecs library
-    private_key_bytes = codecs.decode(private_key, 'hex')
+    private_key_bytes = codecs.decode(private_key, "hex")
     # Generating a public key in bytes using SECP256k1 & ecdsa library
-    public_key_raw = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1).verifying_key
+    public_key_raw = ecdsa.SigningKey.from_string(
+        private_key_bytes, curve=ecdsa.SECP256k1
+    ).verifying_key
     if public_key_raw is not None:
         public_key_bytes = public_key_raw.to_string()
         # Hex encoding the public key from bytes
-        public_key_hex = codecs.encode(public_key_bytes, 'hex')
+        public_key_hex = codecs.encode(public_key_bytes, "hex")
         # Bitcoin public key begins with bytes 0x04 so we have to add the bytes at the start
         public_key = (byte + public_key_hex).decode("utf-8")
         return public_key
     return ""
 
+
 def WIF_uncompressed(byte, raw_privkey):
-    extended_key = byte+raw_privkey
+    extended_key = byte + raw_privkey
     first_sha256 = hashlib.sha256(binascii.unhexlify(extended_key[:66])).hexdigest()
     second_sha256 = hashlib.sha256(binascii.unhexlify(first_sha256)).hexdigest()
     # add checksum to end of extended key
-    final_key = extended_key[:66]+second_sha256[:8]
+    final_key = extended_key[:66] + second_sha256[:8]
     # Wallet Import Format = base 58 encoded final_key
     WIF = base58.b58encode(binascii.unhexlify(final_key))
-    return(WIF.decode("utf-8"))
+    return WIF.decode("utf-8")
+
 
 def WIF_compressed(byte, raw_privkey):
-    extended_key = byte+raw_privkey+'01'
+    extended_key = byte + raw_privkey + "01"
     first_sha256 = hashlib.sha256(binascii.unhexlify(extended_key[:68])).hexdigest()
     second_sha256 = hashlib.sha256(binascii.unhexlify(first_sha256)).hexdigest()
     # add checksum to end of extended key
-    final_key = extended_key[:68]+second_sha256[:8]
+    final_key = extended_key[:68] + second_sha256[:8]
     # Wallet Import Format = base 58 encoded final_key
     WIF = base58.b58encode(binascii.unhexlify(final_key))
-    return(WIF.decode("utf-8"))
+    return WIF.decode("utf-8")
 
 
 def int_to_hexstr(x):
-    if x == 0: return '00'
-    hex_chars = '0123456789ABCDEF'
-    hex_string = ''
+    if x == 0:
+        return "00"
+    hex_chars = "0123456789ABCDEF"
+    hex_string = ""
     while x > 0:
         r = x % 16
         hex_string = hex_chars[r] + hex_string
@@ -194,7 +212,6 @@ def get_server_pubkey(server):
         if f"pubkey_{server}" in data:
             return data[f"pubkey_{server}"]
         return ""
-    
 
 
 def get_ntx_address(coin):
@@ -209,11 +226,13 @@ def get_coin_server(coin):
             return server
     return ""
 
+
 def get_conf_path(coin):
     for server in const.CONF_PATHS:
         if coin in const.CONF_PATHS[server]:
             return const.CONF_PATHS[server][coin]
     return ""
+
 
 def get_wallet_path(coin: str) -> str:
     for server in const.CONF_PATHS:
@@ -222,8 +241,11 @@ def get_wallet_path(coin: str) -> str:
             return f"{conf_path}/wallet.dat"
     return ""
 
+
 def get_utxos_from_api(coin: str, pubkey: str) -> list:
     address = based_58.get_addr_from_pubkey(pubkey, coin)
+    if address == "":
+        return []
     if coin in const.INSIGHT_EXPLORERS:
         baseurl = const.INSIGHT_EXPLORERS[coin]
         if baseurl == "https://chips.explorer.dexstats.info/":
@@ -232,36 +254,40 @@ def get_utxos_from_api(coin: str, pubkey: str) -> list:
             insight = InsightAPI(baseurl)
         return insight.address_utxos(address)
 
-    elif coin in const.CRYPTOID_EXPLORERS:
+    if coin in const.CRYPTOID_EXPLORERS:
         url = f"https://chainz.cryptoid.info/{coin.lower()}/api.dws?q=unspent"
         url += f"&key={const.CRYPTOID_API_KEY}&active={address}"
         r = requests.get(url).json()
         utxos = []
         for i in r["unspent_outputs"]:
-            utxos.append({
-                "txid": i["tx_hash"],
-                "vout": i["tx_ouput_n"],
-                "satoshis": i["value"],
-                "amount": i["value"] * 100000000
-            })
+            utxos.append(
+                {
+                    "txid": i["tx_hash"],
+                    "vout": i["tx_ouput_n"],
+                    "satoshis": i["value"],
+                    "amount": i["value"] * 100000000,
+                }
+            )
         return utxos
 
-    elif coin in const.BLOCKCYPHER_EXPLORERS:
+    if coin in const.BLOCKCYPHER_EXPLORERS:
         url = f"https://api.blockcypher.com/v1/{coin.lower()}/main/addrs/"
         url += f"{address}?unspentOnly=true"
         r = requests.get(url).json()
         utxos = []
         if "txrefs" not in r:
-            logger.warning(f"{url} returned no txrefs")            
+            logger.warning(f"{url} returned no txrefs")
             logger.warning(r)
             return utxos
         for i in r["txrefs"]:
-            utxos.append({
-                "txid": i["tx_hash"],
-                "vout": i["tx_output_n"],
-                "satoshis": i["value"],
-                "amount": i["value"] * 100000000
-            })
+            utxos.append(
+                {
+                    "txid": i["tx_hash"],
+                    "vout": i["tx_output_n"],
+                    "satoshis": i["value"],
+                    "amount": i["value"] * 100000000,
+                }
+            )
         return utxos
 
     url = f"http://stats.kmd.io/api/tools/pubkey_utxos/"
@@ -283,50 +309,62 @@ def get_utxos_from_api(coin: str, pubkey: str) -> list:
 def remap_utxo_data(data):
     utxos = []
     for i in data:
-        utxos.append({
-            "txid": i["tx_hash"],
-            "vout": i["tx_output_n"],
-            "satoshis": i["value"],
-            "amount": i["value"] * 100000000
-        })
+        utxos.append(
+            {
+                "txid": i["tx_hash"],
+                "vout": i["tx_output_n"],
+                "satoshis": i["value"],
+                "amount": i["value"] * 100000000,
+            }
+        )
     return utxos
 
+
 def format_param(param, value):
-    return '-' + param + '=' + value
+    return "-" + param + "=" + value
+
 
 def write_json_data(data: object, filename: str) -> None:
     with open(filename, "w") as f:
         json.dump(data, f, indent=4)
 
+
 def read_json_data(filename: str) -> dict:
     with open(filename, "r") as f:
         return json.load(f)
 
+
 def sec_since(ts):
     return int(time.time()) - ts
 
-def sec_to_dhms(sec: int, colorize: bool=True,
-                optimal_max: int=7200, lower_threshold: int=21600,
-                upper_threshold: int=86400, prefix: str="",
-                padding: bool=True, color: bool=True, 
-            ) -> str:
+
+def sec_to_dhms(
+    sec: int,
+    colorize: bool = True,
+    optimal_max: int = 7200,
+    lower_threshold: int = 21600,
+    upper_threshold: int = 86400,
+    prefix: str = "",
+    padding: bool = True,
+    color: bool = True,
+) -> str:
     if sec < 0:
-        sec = sec*-1
+        sec = sec * -1
     minutes, seconds = divmod(sec, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     periods = []
     if days > 7:
-        return '\033[31m' + " > week!" + '\033[0m'
+        return "\033[31m" + " > week!" + "\033[0m"
     elif days > 0:
-        periods = [('d', days), ('h', hours)]
+        periods = [("d", days), ("h", hours)]
     elif hours > 0:
-        periods = [('h', hours), ('m', minutes)]
+        periods = [("h", hours), ("m", minutes)]
     elif minutes > 0:
-        periods = [('m', minutes), ('s', seconds)]
+        periods = [("m", minutes), ("s", seconds)]
     else:
-        periods = [('s', seconds)]
-    result = ' '.join('{}{}'.format(int(val), name) for name, val in periods if val)
+        periods = [("s", seconds)]
+    result = " ".join("{}{}".format(int(val), name) for name, val in periods if val)
     if sec < 0:
         result = f"-{result}"
     # Add color and fix padding
@@ -335,11 +373,11 @@ def sec_to_dhms(sec: int, colorize: bool=True,
             result = f" {result}"
     if color:
         if sec < optimal_max:
-            result = '\033[92m' + result + '\033[0m'
+            result = "\033[92m" + result + "\033[0m"
         if sec > upper_threshold:
-            result = '\033[31m' + result + '\033[0m'
+            result = "\033[31m" + result + "\033[0m"
         if sec > lower_threshold:
-            result = '\033[33m' + result + '\033[0m'
+            result = "\033[33m" + result + "\033[0m"
     return result
 
 
@@ -359,7 +397,7 @@ def get_ntx_stats(wallet_tx, coin):
     last_mined_time = 0
     ntx = []
     ntx_addr = helper.get_ntx_address(coin)
-    for tx in wallet_tx:            
+    for tx in wallet_tx:
         if "address" in tx:
             if tx["address"] == ntx_addr:
 
@@ -375,6 +413,7 @@ def get_ntx_stats(wallet_tx, coin):
 
     ntx_count = len(ntx)
     return [ntx_count, last_ntx_time, last_mined_time]
+
 
 def get_tx_fee(coin):
     coins_config = get_coins_config()
@@ -395,7 +434,7 @@ def refresh_external_data(file, url):
             json.dump(data, f, indent=4)
     now = int(time.time())
     mtime = os.path.getmtime(file)
-    if now - mtime > 21600: # 6 hours
+    if now - mtime > 21600:  # 6 hours
         data = requests.get(url).json()
         with open(file, "w") as f:
             json.dump(data, f, indent=4)
@@ -408,7 +447,9 @@ def get_coins_config():
 
 
 def get_seednode_versions():
-    return refresh_external_data(const.SEEDNODE_VERSIONS_PATH, const.SEEDNODE_VERSIONS_URL)
+    return refresh_external_data(
+        const.SEEDNODE_VERSIONS_PATH, const.SEEDNODE_VERSIONS_URL
+    )
 
 
 def get_active_seednode_versions():
@@ -419,6 +460,7 @@ def get_active_seednode_versions():
         if versions[v]["end"] > now:
             active_versions.append(v)
     return active_versions
+
 
 def get_dpow_pubkey(server: str) -> str:
     if server == "main":
@@ -439,9 +481,11 @@ def get_dpow_pubkey(server: str) -> str:
         raise ValueError("Invalid pubkey")
     return pubkey
 
+
 def get_assetchains():
     with open(f"{const.HOME}/dPoW/iguana/assetchains.json") as file:
         return json.load(file)
+
 
 def input_int(q, min=0, max=1000000000):
     while True:
@@ -455,6 +499,18 @@ def input_int(q, min=0, max=1000000000):
         except ValueError:
             print("Invalid input, must be integer. Try again")
 
+
+def input_yn(q):
+    while True:
+        msg = ColorMsg()
+        r = msg.input(q)
+        if q.lower() == "y":
+            return True
+        elif q.lower() == "n":
+            return False
+        print(f"Invalid option, must be one of [y/n]. Try again")
+
+
 def input_coin(q):
     while True:
         msg = ColorMsg()
@@ -466,8 +522,18 @@ def input_coin(q):
             print(f"Invalid coin, must be one of {valid}. Try again")
 
 
+def input_pubkey(q):
+    while True:
+        msg = ColorMsg()
+        pubkey = msg.input(q)
+        if validate_pubkey(pubkey):
+            return pubkey
+        else:
+            print("Invalid pubkey. Try again")
+
+
 def chunkify(data: list, chunk_size: int):
-    return [data[x:x+chunk_size] for x in range(0, len(data), chunk_size)]
+    return [data[x : x + chunk_size] for x in range(0, len(data), chunk_size)]
 
 
 def is_configured(config: dict) -> bool:
@@ -498,7 +564,6 @@ def sort_json_files():
                 json.dump(data, f, indent=4, sort_keys=True)
 
 
-
 def convert_csv(file, has_headers=False):
     for i in os.listdir("."):
         if i.endswith(".csv"):
@@ -509,37 +574,47 @@ def convert_csv(file, has_headers=False):
                 for row in csv_reader:
                     data.append(row)
                     line_count += 1
-                print(f'Processed {line_count} lines.')
+                print(f"Processed {line_count} lines.")
             with open(i, "w") as f:
                 json.dump(data, f, indent=4, sort_keys=True)
 
 
 def download_progress(url, fn):
-    with open(fn, 'wb') as f:
+    with open(fn, "wb") as f:
         r = requests.get(url, stream=True)
-        total = r.headers.get('content-length')
+        total = r.headers.get("content-length")
 
         if total is None:
             f.write(r.content)
         else:
             downloaded = 0
             total = int(total)
-            for data in r.iter_content(chunk_size=max(int(total/1000), 1024*1024)):
+            for data in r.iter_content(chunk_size=max(int(total / 1000), 1024 * 1024)):
                 downloaded += len(data)
                 f.write(data)
-                done = int(50*downloaded/total)
-                sys.stdout.write(f"\rDownloading {fn}: [{'#' * done}{'.' * (50-done)}] {done*2}%")
+                done = int(50 * downloaded / total)
+                sys.stdout.write(
+                    f"\rDownloading {fn}: [{'#' * done}{'.' * (50-done)}] {done*2}%"
+                )
                 sys.stdout.flush()
-    sys.stdout.write('\n')
+    sys.stdout.write("\n")
     return r
 
+
 # Not used in docker env, but left for future reference
-def preexec(): # Don't forward signals.
+def preexec():  # Don't forward signals.
     os.setpgrp()
+
 
 # Not used in docker env, but left for future reference
 def launch(launch_params, log_output):
-    subprocess.Popen(launch_params, stdout=log_output, stderr=log_output, universal_newlines=True, preexec_fn=preexec)
+    subprocess.Popen(
+        launch_params,
+        stdout=log_output,
+        stderr=log_output,
+        universal_newlines=True,
+        preexec_fn=preexec,
+    )
 
 
 def kill_process(process, filter=None):
@@ -554,10 +629,8 @@ def kill_process(process, filter=None):
         return "Killed"
     except Exception as e:
         return False
-    
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     wif = input("Enter WIF: ")
     pubkey = wif_to_pubkey(wif)
-    
-

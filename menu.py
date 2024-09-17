@@ -116,31 +116,40 @@ class NotaryMenu():
     def drip(self):
         balances = self.faucet.balances()
         coin = self.msg.input("Enter coin to drip: ")
-        if coin.upper() in const.DPOW_COINS:
-            pubkey = self.cfg.load()[f"pubkey_{helper.get_coin_server(coin)}"]
-            self.msg.status(self.faucet.drip(coin, pubkey))
-        else:
-            self.msg.error(f"Invalid coin '{coin}', try again.")
+        while True:
+            if coin.upper() in const.DPOW_COINS:
+                pubkey = self.cfg.load()[f"pubkey_{helper.get_coin_server(coin)}"]
+                self.msg.status(self.faucet.drip(coin, pubkey))
+                break
+            else:
+                self.msg.error(f"Invalid coin '{coin}', try again.")
 
     def start_coin(self):
-        coin = self.msg.input("Enter coin to start (or ALL): ")
-        if coin.lower() == "all":
-            for coin in const.DPOW_COINS:
+        while True:
+            coin = self.msg.input("Enter coin to start (or ALL): ")
+            if coin.lower() == "all":
+                for coin in const.DPOW_COINS:
+                    self.nn.start(coin)
+                break
+            elif coin.upper() in const.DPOW_COINS:
                 self.nn.start(coin)
-        elif coin.upper() in const.DPOW_COINS:
-            self.nn.start(coin)
-        else:
-            self.msg.error(f"Invalid coin '{coin}', try again.")
+                break
+            else:
+                self.msg.error(f"Invalid coin '{coin}', try again.")
 
     def stop_coin(self):
-        coin = self.msg.input("Enter coin to stop (or ALL): ")
-        if coin.lower() == "all":
-            for coin in const.DPOW_COINS:
+        while True:
+            coin = self.msg.input("Enter coin to stop (or ALL): ")
+            if coin.lower() == "all":
+                for coin in const.DPOW_COINS:
+                    self.nn.stop(coin)
+                break
+            elif coin.upper() in const.DPOW_COINS:
                 self.nn.stop(coin)
-        elif coin.upper() in const.DPOW_COINS:
-            self.nn.stop(coin)
-        else:
-            self.msg.error(f"Invalid coin '{coin}', try again.")
+                break
+            else:
+                self.msg.error(f"Invalid coin '{coin}', try again.")
+                
 
     def start_mining(self):
         daemon = DaemonRPC("KMD")
@@ -157,15 +166,23 @@ class NotaryMenu():
         print(daemon.start_mining())
 
     def migrate_funds_to_pubkey(self):
-        pubkey_main = self.msg.input("Enter pubkey to migrate Main funds to: ")
-        pubkey_3p = self.msg.input("Enter pubkey to migrate 3P funds to: ")
+        while True:
+            pubkey_main = self.msg.input("Enter pubkey to migrate Main funds to: ")
+            if helper.validate_pubkey(pubkey_main):
+                break
+            self.msg.error(f"Invalid pubkey '{pubkey_main}', try again.")
+            
+        while True:
+            pubkey_3p = self.msg.input("Enter pubkey to migrate 3P funds to: ")
+            if helper.validate_pubkey(pubkey_3p):
+                break
+            self.msg.error(f"Invalid pubkey '{pubkey_3p}', try again.")
         nn = Notary()
         coins_ntx_data = self.cfg.get_coins_ntx_data()
         coins = list(coins_ntx_data.keys())
         coins.sort()
         print()
-        
-        # Try consolidate first to get any hidden utxos
+
         for coin in coins:
             server = helper.get_coin_server(coin)
             pubkey = pubkey_main if server == "main" else pubkey_3p
@@ -174,20 +191,13 @@ class NotaryMenu():
             v = self.msg.colorize(f"{address:<40}", "lightcyan")
             print(f"{k}: {v}")
             try:
-                nn.consolidate(coin, True)
+                self.msg.info(f"Consolidating {coin} to recover any hidden utxos...")
+                nn.consolidate(coin, True, address=address)
             except Exception as e:
                 self.msg.error(f"Error consolidating {coin}: {e}")
-
-        for i in range(60):
-            msg.status(f"Waiting {60-i} seconds for consolidations to progress...")
             time.sleep(1)
-
-        # Try daemon next to get any funds is change addresses
-        for coin in coins:
-            server = helper.get_coin_server(coin)
-            pubkey = pubkey_main if server == "main" else pubkey_3p
-            address = based_58.get_addr_from_pubkey(pubkey, coin)
             try:
+                self.msg.info(f"Sending {coin} via deamon to {address}...")
                 daemon = DaemonRPC(coin)
                 balance = daemon.getbalance()
                 daemon.sendtoaddress(address, balance, True)
@@ -236,12 +246,8 @@ class WalletMenu():
                 self.msg.status("AYA not yet supported...")
                 self.msg.status("EMC2 & MIL need an API key from https://chainz.cryptoid.info/api.dws in your .env file...")
             
-            coin = self.msg.input("Enter coin to consolidate (or ALL): ")
-            q = self.msg.input("Force consolidation? (y/n): ")
-            if q.lower() == "y":
-                force = True
-            else:
-                force = False                    
+            coin = helper.input_coin("Enter coin to consolidate (or ALL): ")
+            force = helper.input_yn("Force consolidation? (y/n): ")
             if coin.lower() == "all":
                 for coin in const.DPOW_COINS:
                     self.notary.consolidate(coin, force, api)
@@ -445,11 +451,7 @@ class IguanaMenu():
 
     def split_utxos(self):
         coin = self.msg.input("Enter coin to split (or ALL): ")
-        q = self.msg.input("Force split? (y/n): ")
-        if q.lower() == "y":
-            force = True
-        else:
-            force = False                    
+        force = helper.input_yn("Force split? (y/n): ")
         if coin.lower() == "all":
             for coin in const.DPOW_COINS:
                 self.nn.split_utxos(coin, force)

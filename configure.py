@@ -187,24 +187,26 @@ class Config():
             return
             
         elif option == "Add Whitelist Address":
-            v = self.msg.input(f"Enter KMD address for whitelist: ")
-            daemon = DaemonRPC("KMD")
-            r = daemon.validateaddress(v)
-            if "isvalid" in r:
-                if r["isvalid"]:
-                    if "whitelist" not in config:
-                        config["whitelist"] = const.ADDRESS_WHITELIST
-                    k = self.msg.input(f"Enter label for {v}: ")
-                    config["whitelist"].update({k: v})
-                    # Update daemon confs
-                    self.update_daemon_whitelists(config)
-                    self.save(config)
-                    self.msg.success(f"Added {v} to whitelist.")
+            while True:
+                v = self.msg.input(f"Enter KMD address for whitelist: ")
+                daemon = DaemonRPC("KMD")
+                r = daemon.validateaddress(v)
+                if "isvalid" in r:
+                    if r["isvalid"]:
+                        if "whitelist" not in config:
+                            config["whitelist"] = const.ADDRESS_WHITELIST
+                        k = self.msg.input(f"Enter label for {v}: ")
+                        config["whitelist"].update({k: v})
+                        # Update daemon confs
+                        self.update_daemon_whitelists(config)
+                        self.save(config)
+                        self.msg.success(f"Added {v} to whitelist.")
+                        break
+                    else:
+                        self.msg.error(f"{v} is not a valid KMD address.")
                 else:
-                    self.msg.error(f"{v} is not a valid KMD address.")
-            else:
-                self.msg.error(f"KMD daemon is not responding. {r}")
-            return
+                    self.msg.error(f"Unable to validate address, KMD daemon is not responding. {r}")
+                    break
             
         elif option == "pubkey_main":
             pubkey = helper.get_dpow_pubkey("main")
@@ -224,27 +226,30 @@ class Config():
                     config[option] = pubkey
                     self.save(config)
                     return
-        q = self.msg.input(f"Enter {option} value: ")
-        if option in ["pubkey_main", "pubkey_3p"]:
-            if helper.validate_pubkey(q):
-                config[option] = q
-                config = self.calculate_addresses(config)
-            else:
-                self.msg.error(f"{q} is not a valid pubkey.")
-                return
-        elif option == "sweep_address":
-            daemon = DaemonRPC("KMD")
-            if "isvalid" in daemon.validateaddress(q):
-                if daemon.validateaddress(q)["isvalid"]:
+
+        while True:
+            q = self.msg.input(f"Enter {option} value: ")
+            if option in ["pubkey_main", "pubkey_3p"]:
+                if helper.validate_pubkey(q):
                     config[option] = q
+                    config = self.calculate_addresses(config)
+                    break
                 else:
-                    self.msg.error(f"{q} is not a valid KMD address.")
-                    return
+                    self.msg.error(f"{q} is not a valid pubkey.")
+            elif option == "sweep_address":
+                daemon = DaemonRPC("KMD")
+                while True:
+                    if "isvalid" in daemon.validateaddress(q):
+                        if daemon.validateaddress(q)["isvalid"]:
+                            config[option] = q
+                            break
+                        else:
+                            self.msg.error(f"{q} is not a valid KMD address.")
+                    else:
+                        self.msg.error(f"Unable to validate KMD address. Is daemon running?")
+                        break
             else:
-                self.msg.error(f"Unable to validate KMD address. Is daemon running?")
-                return
-        else:
-            config[option] = q
+                config[option] = q
         self.save(config)
 
     def get_coins_ntx_data(self) -> dict:
