@@ -124,18 +124,23 @@ class Notary():
                 self.msg.status(f"See {ref_url} for notes about cleaning this coin.")
         daemon = DaemonRPC(coin)
         server = helper.get_coin_server(coin)
+        logger.debug(f"Backing up {coin} wallet.dat")
         self.move_wallet(coin)
+        logger.debug(f"Stopping {coin}")
         self.stop(coin)
+        logger.debug(f"Restarting {coin} wallet")
         self.start(coin)
         # Import wallet without rescan
         if not pk:
             pk = input(f"Enter {server.upper()} KMD private key: ")
         pk = helper.wif_convert(coin, pk)
+        logger.debug(f"Importing {coin} privkey")
         daemon.importprivkey(pk, False)
         # Consolidate
         # TODO: This relies on access to explorer APIs, which may not be available for all coins
         # AYA block explorer API has no usable endpoints
         # TODO: Electrums may be a viable alternative
+        logger.debug(f"Consolidating {coin} funds")
         self.consolidate(coin, True)
 
     def get_vouts(self, coin: str, address: str, value: float, tx_size: int) -> dict:
@@ -184,7 +189,10 @@ class Notary():
             try:
                 if {"txid": utxo["txid"], "vout": utxo["vout"]} not in exclude_utxos:
                     inputs.append({"txid": utxo["txid"], "vout": utxo["vout"]})
-                    value += utxo["satoshis"]
+                    if 'satoshis' in utxo:
+                        value += utxo["satoshis"]
+                    elif 'amount' in utxo:
+                        value += utxo["amount"] * 100000000
                 else:
                     logger.debug(f"excluding {utxo['txid']}:{utxo['vout']}")
             except Exception as e:
