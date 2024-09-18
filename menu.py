@@ -26,7 +26,7 @@ def show_logo():
       /_____/ /_/    `__,_/  `__, / `____//_/ /_/      /_/ |_/  `____/`__,_/  `___/  
                             /____/                                                   
     ''')
-    msg.ltcyan('{:^80}'.format('Dragon Node menu v0.2 by Dragonhound'))
+    msg.ltcyan('{:^80}'.format('Dragon Node menu v0.3 by Dragonhound'))
     print()
     notary.welcome()
 
@@ -327,7 +327,10 @@ class WalletMenu():
     def import_privkey(self):
         nn = Notary()
         config = self.cfg.load()
-        server = self.msg.input(f"Select server {self.servers}: ")
+        while True:
+            server = self.msg.input(f"Select server {self.servers}: ")
+            if server in self.servers:
+                break
         notary_name = nn.get_notary_from_pubkey(config[f"pubkey_{server}"])
         wif = self.msg.input(f"Enter {notary_name} {server} private key: ")
         # Does it match the pubkey for this server?
