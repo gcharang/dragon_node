@@ -117,12 +117,16 @@ class NotaryMenu():
         balances = self.faucet.balances()
         while True:
             coin = self.msg.input("Enter coin to drip: ").upper()
-            if coin in const.DPOW_COINS:
+            if coin in const.DPOW_COINS or coin == "TKL":
+                if coin == "TKL":
+                    coin = "TOKEL"
                 server = helper.get_coin_server(coin)
                 if server == "":
                     self.msg.error(f"Coin '{coin}' not found in config.")
                 else:
                     pubkey = self.cfg.load()[f"pubkey_{server}"]
+                    if coin == "TOKEL":
+                        coin = "TKL"
                     self.msg.status(self.faucet.drip(coin, pubkey))
             else:
                 self.msg.error(f"Invalid coin '{coin}', try again.")
