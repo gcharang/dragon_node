@@ -242,12 +242,13 @@ class Config():
                     if "isvalid" in daemon.validateaddress(q):
                         if daemon.validateaddress(q)["isvalid"]:
                             config[option] = q
-                            break
+                            self.save(config)
+                            return
                         else:
                             self.msg.error(f"{q} is not a valid KMD address.")
                     else:
                         self.msg.error(f"Unable to validate KMD address. Is daemon running?")
-                        break
+                        return
             else:
                 config[option] = q
         self.save(config)
