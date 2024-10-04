@@ -15,6 +15,7 @@ old/
 .lock
 OLD_REVIEW/
 .vscode
+s6/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
