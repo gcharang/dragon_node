@@ -55,8 +55,6 @@ class StatsLine:
     def get(self) -> list:
         if self.coin == "KMD_3P":
             row = ["KMD (3P)"]
-        elif self.coin == "GLEEC_OLD":
-            row = ["GLEEC (OLD)"]
         elif self.coin in const.COINS_3P:
             row = [f"{self.coin} (3P)"]
         else:

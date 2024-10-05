@@ -39,25 +39,22 @@ SEEDNODE_VERSIONS_URL = "https://raw.githubusercontent.com/KomodoPlatform/dPoW/d
 SEEDNODE_VERSIONS_PATH = f"{SCRIPT_PATH}/seed_versions.json"
 
 # Coins constants
-COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "KMD", "NINJA", "THC"]
+COINS_MAIN = ["PIRATE", "CCL", "CLC", "ILN", "SUPERNET", "DOC", "MARTY", "LTC", "GLEEC", "KOIN", "KMD", "NINJA", "THC", "GLEEC_OLD"]
 CONF_PATHS = {
     "main": {
         "KMD": f"{HOME}/.komodo/komodo.conf",
         "LTC": f"{HOME}/.litecoin/litecoin.conf",
+        'GLEEC_OLD': f"{HOME}/.komodo/GLEEC_OLD/GLEEC.conf"
     },
     "3p": {
         "KMD_3P": f"{HOME}/.komodo_3p/komodo.conf",
         "TOKEL": f"{HOME}/.komodo_3p/TOKEL/TOKEL.conf",
-        "MCL": f"{HOME}/.komodo_3p/MCL/MCL.conf",
-        "AYA": f"{HOME}/.aryacoin/aryacoin.conf",
-        "EMC2": f"{HOME}/.einsteinium/einsteinium.conf",
-        "MIL": f"{HOME}/.mil/mil.conf",
-        "CHIPS": f"{HOME}/.chips/chips.conf"
+        "MCL": f"{HOME}/.komodo_3p/MCL/MCL.conf"
     }
 }
 
 # Autopopulate conf paths for all main coins
-[CONF_PATHS["main"].update({coin: f"{HOME}/.komodo/{coin}/{coin}.conf"}) for coin in COINS_MAIN if coin not in ["KMD", "LTC"]]
+[CONF_PATHS["main"].update({coin: f"{HOME}/.komodo/{coin}/{coin}.conf"}) for coin in COINS_MAIN if coin not in ["KMD", "LTC", "GLEEC_OLD"]]
 DPOW_SERVERS = list(CONF_PATHS.keys())
 COINS_3P = list(CONF_PATHS["3p"].keys())
 DPOW_COINS = COINS_3P + COINS_MAIN
@@ -132,15 +129,15 @@ INSIGHT_EXPLORERS = {
     'CCL': 'https://ccl.explorer.dexstats.info/',
     'CHIPS': 'https://chips.explorer.dexstats.info/',
     'CLC': 'https://clc.explorer.dexstats.info/',
-    'DOC': 'https://doc.dragonhound.info/',
-    'GLEEC': 'https://gleec.explorer.dexstats.info/',
-    'GLEECOLD': 'https://gleec.explorer.dexstats.info/',
+    'DOC': 'https://doc.explorer.dexstats.info/',
+    'GLEEC': "https://explorer.gleec.com/",
+    'GLEEC_OLD': 'https://gleec.explorer.dexstats.info/',
     'THC': 'https://thc.explorer.dexstats.info/',
     'ILN': 'https://iln.explorer.dexstats.info/',
     'KMD': 'https://kmd.explorer.dexstats.info/',
     'KMD_3P': 'https://kmd.explorer.dexstats.info/',
     'KOIN': 'https://koin.explorer.dexstats.info/',
-    'MARTY': 'https://marty.dragonhound.info/',
+    'MARTY': 'https://marty.explorer.dexstats.info/',
     'MCL': 'https://mcl.explorer.dexstats.info/',
     'NINJA': 'https://ninja.explorer.dexstats.info/',
     'PIRATE': 'https://explorer.pirate.black/',

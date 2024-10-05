@@ -252,8 +252,9 @@ class WalletMenu():
         if helper.is_configured(config):
             self.notary = Notary()
             if not const.CRYPTOID_API_KEY and api:
-                self.msg.status("AYA not yet supported...")
-                self.msg.status("EMC2 & MIL need an API key from https://chainz.cryptoid.info/api.dws in your .env file...")
+                # self.msg.status("AYA not yet supported...")
+                # self.msg.status("EMC2 & MIL need an API key from https://chainz.cryptoid.info/api.dws in your .env file...")
+                pass
             
             coin = helper.input_coin("Enter coin to consolidate (or ALL): ")
             force = helper.input_yn("Force consolidation? (y/n): ")

@@ -238,44 +238,49 @@ class Notary():
             return True
                 
     def consolidate(self, coin: str, force: bool=False, api: bool=False, address: str="") -> None:
+        logger.warning(f"Consolidating {coin}...")
         config = self.cfg.load()
         if helper.is_configured(config):
-            print()
-            daemon = DaemonRPC(coin)
-            coins_data = self.cfg.get_coins_ntx_data()
-            if address == "":
-                address = coins_data[coin]["address"]
-            pubkey = coins_data[coin]["pubkey"]
-            utxos = self.get_utxos(coin, pubkey, api)
-            if len(utxos) == 0:
-                logger.warning(f"{coin} No UTXOs found")
-                return
-            if not force:
-                if len(utxos) < 5 and daemon.getbalance() > 0.001 and not force:
-                    logger.debug(f"{coin} < 5 UTXOs to consolidate, skipping")
+            try:
+                daemon = DaemonRPC(coin)
+                coins_data = self.cfg.get_coins_ntx_data()
+                if address == "":
+                    address = coins_data[coin]["address"]
+                pubkey = coins_data[coin]["pubkey"]
+                utxos = self.get_utxos(coin, pubkey, api)
+                if len(utxos) == 0:
+                    logger.warning(f"{coin} No UTXOs found")
                     return
+                if not force:
+                    if len(utxos) < 5 and daemon.getbalance() > 0.001 and not force:
+                        logger.debug(f"{coin} < 5 UTXOs to consolidate, skipping")
+                        return
 
-            utxo_chunks = helper.chunkify(utxos, 800)
-            for utxos in utxo_chunks:
-                inputs_data = self.get_inputs(utxos, [], force)
-                inputs = inputs_data[0]
-                # Assuming 100 bytes per input
-                tx_size = len(inputs) * 100
-                value = inputs_data[1]
-                vouts = self.get_vouts(coin, address, value, tx_size)
-                if len(inputs) > 0 and len(vouts) > 0:
-                    self.msg.darkgrey(f"{coin} consolidating {len(inputs)} UTXOs, value: {value}")
-                    txid = self.process_raw_transaction(coin, address, utxos, inputs, vouts, force)
-                    if txid != "":
-                        explorer_url = daemon.get_explorer_url(txid, 'tx')
-                        if explorer_url != "":
-                            txid = explorer_url
-                        self.msg.ltgreen(f"{coin} Sent {value} to {address}: {txid} from {len(inputs)} input UTXOs")
+                utxo_chunks = helper.chunkify(utxos, 800)
+                for utxos in utxo_chunks:
+                    inputs_data = self.get_inputs(utxos, [], force)
+                    inputs = inputs_data[0]
+                    # Assuming 100 bytes per input
+                    tx_size = len(inputs) * 100
+                    value = inputs_data[1]
+                    vouts = self.get_vouts(coin, address, value, tx_size)
+                    if len(inputs) > 0 and len(vouts) > 0:
+                        self.msg.darkgrey(f"{coin} consolidating {len(inputs)} UTXOs, value: {value}")
+                        txid = self.process_raw_transaction(coin, address, utxos, inputs, vouts, force)
+                        if txid != "":
+                            explorer_url = daemon.get_explorer_url(txid, 'tx')
+                            if explorer_url != "":
+                                txid = explorer_url
+                            self.msg.ltgreen(f"{coin} Sent {value} to {address}: {txid} from {len(inputs)} input UTXOs")
+                        else:
+                            logger.error(f"{coin} Failed to send {value} to {address} from {len(inputs)} input UTXOs")
+                        time.sleep(0.1)
                     else:
-                        logger.error(f"{coin} Failed to send {value} to {address} from {len(inputs)} input UTXOs")
-                    time.sleep(0.1)
-                else:
-                    logger.debug(f"{coin} no valid inputs or vouts for")
+                        logger.debug(f"{coin} no valid inputs or vouts for")
+            except Exception as e:
+                logger.error(e)
+        else:
+            logger.debug(f"Please complete configuration before consolidation")
 
     def process_raw_transaction(self, coin: str, address: str, utxos: list, inputs: list, vouts: dict, force=False) -> str:
         daemon = DaemonRPC(coin)
