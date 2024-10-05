@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import requests
+from logger import logger
 
 # See https://github.com/DeckerSU/insight-api-komodo for more info
 

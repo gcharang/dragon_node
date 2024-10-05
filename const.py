@@ -124,7 +124,7 @@ ADDNODES = {
     "webworker": "seed.webworker.sh",
 }
 
-# TODO: Gleec old/new explorers?
+
 INSIGHT_EXPLORERS = {
     'CCL': 'https://ccl.explorer.dexstats.info/',
     'CHIPS': 'https://chips.explorer.dexstats.info/',
