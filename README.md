@@ -117,3 +117,4 @@ Additionally, coins config (such as split amount and threshold) can be changed b
         "pubkey": "030a72f1a15f67624aea55743c5b777bdd55362596add77b544ee2e582bdebf0c7"
     }
 ```
+

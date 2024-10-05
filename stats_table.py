@@ -188,13 +188,13 @@ class Stats:
             if dex_version != "Error":
                 active_versions = helper.get_active_seednode_versions()
                 if dex_version in active_versions:
-                    dex_status = self.msg.colorize(f"[ DeFi API \N{check mark} {dex_version} ]", "lightgreen")
+                    dex_status = self.msg.colorize(f"[ KDF \N{check mark} {dex_version} ]", "lightgreen")
                 else:
-                    dex_status = self.msg.colorize(f"[ DeFi API \N{runic cross punctuation} {dex_version} ]", "purple")
+                    dex_status = self.msg.colorize(f"[ KDF \N{runic cross punctuation} {dex_version} ]", "purple")
             else:
-                dex_status = self.msg.colorize(f"[ DeFi API \N{runic cross punctuation} {dex_version} ]", "darkgrey")
+                dex_status = self.msg.colorize(f"[ KDF \N{runic cross punctuation} {dex_version} ]", "darkgrey")
         except FileNotFoundError:
-            dex_status = self.msg.colorize(f"[ DeFi API \N{runic cross punctuation} Err:404 ]", "darkgrey")
+            dex_status = self.msg.colorize(f"[ KDF \N{runic cross punctuation} Err:404 ]", "darkgrey")
         
         if daemon.is_mining():
             mining = self.msg.colorize(f"[ Mining \N{check mark} {mined_str}]", "lightgreen")
@@ -208,10 +208,11 @@ class Stats:
             status_3p = self.msg.colorize(f"[ dPoW 3P \N{check mark} ]", "lightgreen")
         else:
             status_3p = self.msg.colorize(f"[ dPoW 3P \N{runic cross punctuation} ]", "darkgrey")
+        status_dpow_version = self.msg.colorize(f"[ dPoW v{helper.get_dpow_version()} ]", "lightcyan")
 
-        status_data = f" \N{position indicator} ".join([status_main, status_3p, mining, dex_status]) 
+        status_data = f" \N{position indicator} ".join([status_main, status_3p, status_dpow_version, mining, dex_status]) 
         footer_row = f"\N{position indicator} {status_data} \N{position indicator}"
-        return footer_row.center(155)
+        return footer_row.center(173)
     
     def spacer(self) -> str:
         return " " + "-" * (self.table_width - 1)

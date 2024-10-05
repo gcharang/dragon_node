@@ -461,7 +461,16 @@ def get_active_seednode_versions():
             active_versions.append(v)
     return active_versions
 
-
+def get_dpow_version():
+    fn = f"{const.HOME}/dPoW/iguana/version"
+    if not os.path.exists(fn):
+        return "?"
+    v = "?"
+    with open(fn, "r") as f:
+        for line in f.readlines():
+            if line.startswith("0"):
+                return line.replace("\n","")
+    
 def get_dpow_pubkey(server: str) -> str:
     if server == "main":
         fn = f"{const.HOME}/dPoW/iguana/pubkey.txt"
