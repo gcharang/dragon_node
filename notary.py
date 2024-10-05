@@ -245,7 +245,7 @@ class Notary():
                 daemon = DaemonRPC(coin)
                 coins_data = self.cfg.get_coins_ntx_data()
                 if coin not in coins_data.keys():
-                    logger.error(f"{i} is not configured in your coins_ntx_data.json file!")
+                    logger.error(f"{coin} is not configured in your coins_ntx_data.json file!")
                     return
                 if address == "":
                     address = coins_data[coin]["address"]
