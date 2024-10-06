@@ -247,12 +247,17 @@ def get_utxos_from_api(coin: str, pubkey: str) -> list:
     if address == "":
         return []
     if coin in const.INSIGHT_EXPLORERS:
-        baseurl = const.INSIGHT_EXPLORERS[coin]
-        if baseurl == "https://chips.explorer.dexstats.info/":
-            insight = InsightAPI(baseurl, "api")
-        else:
-            insight = InsightAPI(baseurl)
-        return insight.address_utxos(address)
+        for baseurl in const.INSIGHT_EXPLORERS[coin]:
+            if baseurl == "https://chips.explorer.dexstats.info/":
+                insight = InsightAPI(baseurl, "api")
+            else:
+                insight = InsightAPI(baseurl)
+            try:
+                return insight.address_utxos(address)
+            except:
+                pass
+    logger.warning(f"{coin} explorers {const.INSIGHT_EXPLORERS[coin]} not responding!")
+    return []
 
     if coin in const.CRYPTOID_EXPLORERS:
         url = f"https://chainz.cryptoid.info/{coin.lower()}/api.dws?q=unspent"

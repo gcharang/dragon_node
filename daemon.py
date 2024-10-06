@@ -244,7 +244,7 @@ class DaemonRPC():
                     endpoint = "address/"
                 elif endpoint == "block":
                     endpoint = "block/"
-                return f"{const.INSIGHT_EXPLORERS[self.coin]}{endpoint}{value}"
+                return f"{const.INSIGHT_EXPLORERS[self.coin][0]}{endpoint}{value}"
         elif self.coin in const.CRYPTOID_EXPLORERS:
             baseurl = f"https://chainz.cryptoid.info/emc2/"
             if endpoint == "tx":

@@ -31,12 +31,8 @@ class InsightAPI:
     def address_utxos(self, address):
         '''Get the unspent outputs for an address'''
         url = f'{self.api_url}/addr/{address}/utxo'
-        try:
-            response = requests.get(url)
-            return response.json()
-        except:
-            print(f"{url} failed to return a response. Check the address and try again.")
-            return []
+        response = requests.get(url)
+        return response.json()
             
 
     def addresses_transactions(self, addresses, from_=None, to_=None, no_asm=None, no_script_sig=None, no_spent=None):

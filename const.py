@@ -126,35 +126,32 @@ ADDNODES = {
 
 
 INSIGHT_EXPLORERS = {
-    'CCL': 'https://ccl.explorer.dexstats.info/',
-    'CHIPS': 'https://chips.explorer.dexstats.info/',
-    'CLC': 'https://clc.explorer.dexstats.info/',
-    'DOC': 'https://doc.explorer.dexstats.info/',
-    'GLEEC': "https://explorer.gleec.com/",
-    'GLEEC_OLD': 'https://gleec.explorer.dexstats.info/',
-    'THC': 'https://thc.explorer.dexstats.info/',
-    'ILN': 'https://iln.explorer.dexstats.info/',
-    'KMD': 'https://kmd.explorer.dexstats.info/',
-    'KMD_3P': 'https://kmd.explorer.dexstats.info/',
-    'KOIN': 'https://koin.explorer.dexstats.info/',
-    'MARTY': 'https://marty.explorer.dexstats.info/',
-    'MCL': 'https://mcl.explorer.dexstats.info/',
-    'NINJA': 'https://ninja.explorer.dexstats.info/',
-    'PIRATE': 'https://explorer.pirate.black/',
-    'SUPERNET': 'https://supernet.explorer.dexstats.info/',
-    'TOKEL': 'https://tokel.explorer.dexstats.info/'
+    'CCL': ['https://ccl.explorer.dexstats.info/'],
+    'CHIPS': ['https://chips.explorer.dexstats.info/'],
+    'CLC': ['https://clc.explorer.dexstats.info/'],
+    'DOC': ['https://doc.explorer.dexstats.info/'],
+    'GLEEC': ["https://explorer.gleec.com/"],
+    'GLEEC_OLD': ['https://gleec.explorer.dexstats.info/'],
+    'THC': ['https://thc.explorer.dexstats.info/'],
+    'ILN': ['https://iln.explorer.dexstats.info/'],
+    'KMD': ['https://kmd.explorer.dexstats.info/'],
+    'KMD_3P': ['https://kmd.explorer.dexstats.info/'],
+    'KOIN': ['https://koin.explorer.dexstats.info/'],
+    'MARTY': ['https://marty.explorer.dexstats.info/'],
+    'MCL': ['https://explorer.marmara.io/', 'https://mcl.explorer.dexstats.info/'],
+    'NINJA': ['https://ninja.explorer.dexstats.info/'],
+    'PIRATE': ['https://explorer.pirate.black/'],
+    'SUPERNET': ['https://supernet.explorer.dexstats.info/'],
+    'TOKEL': ['https://tokel.explorer.dexstats.info/']
 }
 
 CRYPTOID_API_KEY = os.getenv('CRYPTOID_API_KEY')
 CRYPTOID_EXPLORERS = {
-    'EMC2': 'https://chainz.cryptoid.info/emc2/',
-    'MIL': 'https://chainz.cryptoid.info/mil/'
 }
 BLOCKCYPHER_EXPLORERS = {
     'LTC': 'https://api.blockcypher.com/v1/ltc/main'
 }
 NO_EXPLORER = {
-    'AYA': ''
 }
 WHITELIST_COMPATIBLE = list(set(COINS_MAIN) - set(["LTC"])) + ["KMD_3P", "MCL", "TOKEL", "CHIPS"]
 
