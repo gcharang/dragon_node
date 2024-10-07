@@ -77,7 +77,7 @@ class Iguana():
             return {"error": f"Error! Iguana down? {e}"}
 
     def splitfunds(self, coin: str, utxos: int=40, sats: int=10000) -> dict:
-        coin = coin.split("_")[0]
+        #coin = coin.split("_")[0]
         params={
             "agent": "iguana",
             "method": "splitfunds",
@@ -86,6 +86,7 @@ class Iguana():
             "duplicates": utxos,
             "coin": coin
         }
+        print(params)
         return self.rpc(params)
 
     def addnotary(self, ip_addr):

@@ -67,18 +67,6 @@ class Notary():
             if "split_amount" in coins_ntx_data[coin]:
                 return coins_ntx_data[coin]["split_amount"]
             return 20
-        
-    def get_utxo_value(self, coin: str, sats=False) -> float:
-        coins_ntx_data = self.cfg.get_coins_ntx_data()
-        if sats:
-            factor = 100000000
-        else:
-            factor = 1
-        if coin in coins_ntx_data:
-            return coins_ntx_data[coin]["utxo_value"] * factor
-        else:
-            return coins_ntx_data["KMD"]["utxo_value"] * factor
-
     
     def move_wallet(self, coin: str) -> None:
         config = self.cfg.load()
@@ -206,7 +194,9 @@ class Notary():
         unspent = daemon.listunspent()
         utxo_value = helper.get_utxo_value(coin)
         count = daemon.get_utxo_count(utxo_value)
-        if count < self.get_utxo_threshold(coin) or force:
+        threshold = self.get_utxo_threshold(coin)
+        logger.info(f"{count} {coin} UTXOs (threshold {threshold}) [Force: {force}]")
+        if count < threshold or force:
             server = helper.get_coin_server(coin)
             split_amount = self.get_split_amount(coin)
                 

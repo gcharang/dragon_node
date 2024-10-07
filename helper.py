@@ -17,6 +17,7 @@ import binascii
 import subprocess
 import helper
 import based_58
+import const
 from color import ColorMsg
 from insight_api import InsightAPI
 from logger import logger
@@ -387,14 +388,16 @@ def sec_to_dhms(
 
 
 def get_utxo_value(coin: str, sats=False) -> float:
+    with open(const.COINS_NTX_DATA_PATH, 'r') as file:
+        coins_ntx_data = json.load(file)
     if sats:
         factor = 100000000
     else:
         factor = 1
-    if coin in const.LARGE_UTXO_COINS:
-        return 0.00100000 * factor
+    if coin in coins_ntx_data:
+        return coins_ntx_data[coin]["utxo_value"] * factor
     else:
-        return 0.00010000 * factor
+        return coins_ntx_data["KMD"]["utxo_value"] * factor
 
 
 def get_ntx_stats(wallet_tx, coin):
