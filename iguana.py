@@ -77,7 +77,8 @@ class Iguana():
             return {"error": f"Error! Iguana down? {e}"}
 
     def splitfunds(self, coin: str, utxos: int=40, sats: int=10000) -> dict:
-        #coin = coin.split("_")[0]
+        if coin.endswith("_3P"):
+            coin = coin.split("_")[0]
         params={
             "agent": "iguana",
             "method": "splitfunds",

@@ -218,10 +218,10 @@ class Notary():
                         self.msg.ltcyan(f"Explorer: {link}")
                     return True
                 else:
-                    self.msg.darkgrey(f"Error splitting {split_amount} utxos for {coin}: {r}")
+                    self.msg.warning(f"Error splitting {split_amount} utxos for {coin}: {r}")
                     return False
             else:
-                self.msg.darkgrey(f"Error splitting {split_amount} utxos for {coin}: Iguana not running")
+                self.msg.warning(f"Error splitting {split_amount} utxos for {coin}: Iguana not running")
                 return False
         else:
             self.msg.darkgrey(f"Skipping {coin} ({count} utxos in reserve)")
